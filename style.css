@@ -1,0 +1,5 @@
+body { font-family: Arial, sans-serif; margin: 20px; }
+#chat-container { width: 400px; margin: auto; }
+#messages { height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
+input { width: 80%; }
+button { width: 18%; }
