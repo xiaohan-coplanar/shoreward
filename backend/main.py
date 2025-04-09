@@ -25,7 +25,7 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 async def chat_endpoint(chat_request: ChatRequest):
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o",
         messages=[{"role": "user", "content": chat_request.message}]
     )
     reply = response.choices[0].message.content
