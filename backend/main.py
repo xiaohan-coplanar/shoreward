@@ -1,9 +1,10 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from dotenv import load_dotenv
 from openai import OpenAI
+from model import ChatRequest
+
 
 load_dotenv()
 
@@ -18,15 +19,20 @@ app.add_middleware(
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+system_prompt = "You are a helpful assistant for travel planning. Maximum 100 words"
 
-class ChatRequest(BaseModel):
-    message: str
 
 @app.post("/chat")
 async def chat_endpoint(chat_request: ChatRequest):
+    messages = []
+    if not chat_request.history:
+        messages.append({"role": "system", "content": system_prompt})
+    else:
+        messages.extend(chat_request.history)
+    messages.append({"role": "user", "content": chat_request.message})
     response = client.chat.completions.create(
         model="gpt-4o",
-        messages=[{"role": "user", "content": chat_request.message}]
+        messages=messages
     )
     reply = response.choices[0].message.content
     return {"reply": reply}
