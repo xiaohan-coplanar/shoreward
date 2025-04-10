@@ -25,10 +25,8 @@ system_prompt = "You are a helpful assistant for travel planning. Maximum 100 wo
 @app.post("/chat")
 async def chat_endpoint(chat_request: ChatRequest):
     messages = []
-    if not chat_request.history:
-        messages.append({"role": "system", "content": system_prompt})
-    else:
-        messages.extend(chat_request.history)
+    messages.append({"role": "system", "content": system_prompt})
+    messages.extend(chat_request.history)
     messages.append({"role": "user", "content": chat_request.message})
     response = client.chat.completions.create(
         model="gpt-4o",
