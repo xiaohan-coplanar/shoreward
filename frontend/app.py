@@ -44,18 +44,19 @@ if user_input:
     # Display assistant "thinking" placeholder
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
-        message_placeholder.markdown("Thinking...")
         
         try:
             # Call the API
-            response = requests.post(API_URL, json=request_data)
+            response = requests.post(API_URL, json=request_data, stream=True)
             response.raise_for_status()  # Raise exception on request failure
             
             # Get the reply
-            reply = response.json().get("reply", "Sorry, I couldn't process your request.")
-            
-            # Update message placeholder
-            message_placeholder.markdown(reply)
+            reply = ""
+            for line in response.iter_content():
+                if line:
+                    decoded_line = line.decode('utf-8')
+                    reply += decoded_line
+                    message_placeholder.markdown(reply)
             
             # Add the reply to chat history
             st.session_state.messages.append({"role": "assistant", "content": reply})
