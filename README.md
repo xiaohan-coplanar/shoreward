@@ -55,8 +55,14 @@ pip install -r requirements.txt
 
 ### Running the Application
 
-Start the application:
+Start the application in two seperate terminal:
+backend:
 ```bash
-fastapi run backend/main.py & streamlit run frontend/app.py
+fastapi run backend/main.py
 ```
+frontend:
+```bash
+streamlit run frontend/app.py
+```
+
 
