@@ -52,10 +52,9 @@ if user_input:
             
             # Get the reply
             reply = ""
-            for line in response.iter_content():
+            for line in response.iter_content(decode_unicode=True):
                 if line:
-                    decoded_line = line.decode('utf-8')
-                    reply += decoded_line
+                    reply += line
                     message_placeholder.markdown(reply)
             
             # Add the reply to chat history
