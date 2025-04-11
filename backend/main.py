@@ -1,27 +1,38 @@
-import os
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from pydantic import ValidationError
 from dotenv import load_dotenv
 from openai import OpenAI
-from model import ChatRequest
+from model import TravelPlanRequest
+from datetime import datetime
+import os
 
-from service import streaming_generator
-
+from service import prompt_to_response
 
 load_dotenv()
 
 app = FastAPI()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-system_prompt = "You are a helpful assistant for travel planning. Maximum 100 words"
+def build_prompt(data: TravelPlanRequest) -> str:
+    # 150 words only for debugging reason
+    # TODO: This part needs fine tune
+    return (
+        f"You are a travel planning assistant. Please create a {data.budget_level} travel plan "
+        f"for a trip starting on {data.start_date} and ending on {data.end_date}. "
+        f"The user will travel from {data.current_city} to {data.destination_city}. "
+        "Suggest places to visit, daily itinerary, and general travel advice. Keep it under 150 words." 
+    )
 
-@app.post("/chat")
-async def chat_endpoint(chat_request: ChatRequest):
-    messages = []
-    messages.append({"role": "system", "content": system_prompt})
-    messages.extend(chat_request.history)
-    messages.append({"role": "user", "content": chat_request.message})
+@app.post("/plan")
+async def travel_plan_endpoint(request: TravelPlanRequest):
     try:
-        return StreamingResponse(streaming_generator(messages), media_type="text/event-stream")
+        prompt = build_prompt(request)
+
+        response = prompt_to_response(prompt)
+
+        plan_text = response.choices[0].message.content
+        return {"plan": plan_text}
+
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
