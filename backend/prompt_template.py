@@ -1,4 +1,4 @@
-from model import TravelPlanRequest
+from backend.model import TravelPlanRequest
 
 def build_prompt(data: TravelPlanRequest) -> str:
     # 150 words only for debugging reason
