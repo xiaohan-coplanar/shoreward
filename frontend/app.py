@@ -2,11 +2,16 @@ import streamlit as st
 import requests
 from datetime import date
 
-st.set_page_config(page_title="Shoreward Travel Planner", page_icon="🌍", layout="centered")
+st.set_page_config(page_title="Shoreward Travel Assistant", page_icon="✈️", layout="wide")
 
-API_URL = "http://localhost:8000/plan"  # Adjust this if running remotely
+# Initialize session state
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-st.title("🌍 Shoreward AI Travel Planner")
+# API configuration
+API_URL = "http://localhost:8000/plan"  # Adjust according to your backend
+
+st.title("✈️ Shoreward Travel Planning Assistant")
 st.markdown("_Tell us your trip details and get a travel plan powered by AI._")
 
 # Input form
