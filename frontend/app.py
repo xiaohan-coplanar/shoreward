@@ -1,64 +1,53 @@
 import streamlit as st
 import requests
+from datetime import date
 
-st.set_page_config(page_title="Travel Assistant", page_icon="✈️", layout="wide")
+st.set_page_config(page_title="Shoreward Travel Assistant", page_icon="✈️", layout="wide")
 
 # Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # API configuration
-API_URL = "http://localhost:8000/chat"  # Adjust according to your backend
+API_URL = "http://localhost:8000/plan"  # Adjust according to your backend
 
-# Page title
-st.title("✈️ Travel Planning Assistant")
-st.markdown("_Use this chatbot to help plan your trip._")
+st.title("✈️ Shoreward Travel Planning Assistant")
+st.markdown("_Tell us your trip details and get a travel plan powered by AI._")
 
-# Display chat history
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# Input form
+with st.form("travel_form"):
+    current_city = st.text_input("Current City", placeholder="e.g., New York")
+    destination_city = st.text_input("Destination City", placeholder="e.g., Tokyo")
+    start_date = st.date_input("Start Date", min_value=date.today())
+    end_date = st.date_input("End Date", min_value=start_date)
+    budget_level = st.selectbox(
+        "Budget Level",
+        options=["super budget", "midclass", "luxury"]
+    )
+    submitted = st.form_submit_button("Generate Travel Plan")
 
-# User input
-user_input = st.chat_input("Enter your travel question...")
+# Form submission logic
+if submitted:
+    if not current_city or not destination_city:
+        st.error("Please fill in both cities.")
+    elif start_date > end_date:
+        st.error("Start date must be before or equal to end date.")
+    else:
+        # Prepare data
+        payload = {
+            "current_city": current_city,
+            "destination_city": destination_city,
+            "start_date": str(start_date),
+            "end_date": str(end_date),
+            "budget_level": budget_level
+        }
 
-if user_input:
-    # Display user's message
-    with st.chat_message("user"):
-        st.markdown(user_input)
-    
-    # Add the new message to chat history
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    
-    # Prepare request content
-    chat_history = [
-        {"role": msg["role"], "content": msg["content"]} 
-        for msg in st.session_state.messages[:-1]  # Exclude the latest user message
-    ]
-    
-    request_data = {
-        "message": user_input,
-        "history": chat_history
-    }
-    
-    # Display assistant "thinking" placeholder
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        
         try:
-            # Call the API
-            response = requests.post(API_URL, json=request_data, stream=True)
-            response.raise_for_status()  # Raise exception on request failure
-            
-            # Get the reply
-            reply = ""
-            for line in response.iter_content(decode_unicode=True):
-                if line:
-                    reply += line
-                    message_placeholder.markdown(reply)
-            
-            # Add the reply to chat history
-            st.session_state.messages.append({"role": "assistant", "content": reply})
-            
+            with st.spinner("Generating your travel plan..."):
+                response = requests.post(API_URL, json=payload)
+                response.raise_for_status()
+                travel_plan = response.json().get("plan", "")
+                st.success("Here’s your personalized travel plan:")
+                st.markdown(travel_plan)
         except Exception as e:
-            message_placeholder.markdown(f"An error occurred: {str(e)}")
+            st.error(f"An error occurred: {str(e)}")
