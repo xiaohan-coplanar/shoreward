@@ -1,6 +1,15 @@
 from backend.model import TravelPlanRequest
 
 def build_prompt(data: TravelPlanRequest) -> str:
+    """
+    Build a prompt for the OpenAI API based on user's request.
+
+    Args:
+        data (TravelPlanRequest): The request to generate a prompt from.
+
+    Returns:
+        str: The prompt for the OpenAI API.
+    """
     # 150 words only for debugging reason
     # TODO: This part needs fine tune
     return (

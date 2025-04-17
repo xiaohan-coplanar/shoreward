@@ -91,7 +91,7 @@ OPENAI_API_KEY=your-api-key-here
 
 Start the application in terminal:
 ```bash
-streamlit run app.py
+streamlit run run_shoreward_app.py
 ```
 
 
