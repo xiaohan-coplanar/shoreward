@@ -7,7 +7,6 @@ A simple yet powerful travel planning assistant with AI-powered chat capabilitie
 - AI-powered travel assistant
 - Interactive chat interface
 - Conversation history tracking
-- FastAPI backend + Streamlit frontend
 
 ## Quick Start
 
@@ -90,14 +89,9 @@ OPENAI_API_KEY=your-api-key-here
 
 ### Running the Application
 
-Start the application in **two seperate** terminals:
-backend:
+Start the application in terminal:
 ```bash
-fastapi run backend/main.py
-```
-frontend:
-```bash
-streamlit run frontend/app.py
+streamlit run run_shoreward_app.py
 ```
 
 

@@ -1,6 +1,7 @@
 import streamlit as st
-import requests
 from datetime import date
+from backend.service import get_travel_plan
+from backend.model import TravelPlanRequest
 
 st.set_page_config(page_title="Shoreward Travel Assistant", page_icon="✈️", layout="wide")
 
@@ -8,8 +9,6 @@ st.set_page_config(page_title="Shoreward Travel Assistant", page_icon="✈️", 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# API configuration
-API_URL = "http://localhost:8000/plan"  # Adjust according to your backend
 
 st.title("✈️ Shoreward Travel Planning Assistant")
 st.markdown("_Tell us your trip details and get a travel plan powered by AI._")
@@ -34,19 +33,17 @@ if submitted:
         st.error("Start date must be before or equal to end date.")
     else:
         # Prepare data
-        payload = {
-            "current_city": current_city,
-            "destination_city": destination_city,
-            "start_date": str(start_date),
-            "end_date": str(end_date),
-            "budget_level": budget_level
-        }
+        request = TravelPlanRequest(
+            current_city=current_city,
+            destination_city=destination_city,
+            start_date=start_date,
+            end_date=end_date,
+            budget_level=budget_level
+        )
 
         try:
             with st.spinner("Generating your travel plan..."):
-                response = requests.post(API_URL, json=payload)
-                response.raise_for_status()
-                travel_plan = response.json().get("plan", "")
+                travel_plan = get_travel_plan(request)
                 st.success("Here’s your personalized travel plan:")
                 st.markdown(travel_plan)
         except Exception as e:
